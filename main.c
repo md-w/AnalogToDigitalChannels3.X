@@ -115,14 +115,35 @@ bool isSound = 0;
 STRUCT_CONTROLLER_SP SetPoint;
 
 #define RELAY_LAT LATAbits.LATA5
-#define LED_HI_LAT LATCbits.LATC7
-#define LED_NORMAL_LAT LATCbits.LATC6
-#define LED_LO_LAT LATCbits.LATC5
-
 #define RELAY_TRIS TRISAbits.TRISA5
-#define LED_HI_TRIS TRISCbits.TRISC7
-#define LED_NORMAL_TRIS TRISCbits.TRISC6
-#define LED_LO_TRIS TRISCbits.TRISC5
+
+
+#define LED1_HI_LAT LATCbits.LATC7
+#define LED1_NORMAL_LAT LATCbits.LATC6
+#define LED1_LO_LAT LATCbits.LATC5
+
+
+#define LED1_HI_TRIS TRISCbits.TRISC7
+#define LED1_NORMAL_TRIS TRISCbits.TRISC6
+#define LED1_LO_TRIS TRISCbits.TRISC5
+
+#define LED2_HI_LAT LATEbits.LATE0
+#define LED2_NORMAL_LAT LATEbits.LATE1
+#define LED2_LO_LAT LATEbits.LATE2
+
+
+#define LED2_HI_TRIS TRISEbits.TRISE0
+#define LED2_NORMAL_TRIS TRISEbits.TRISE1
+#define LED2_LO_TRIS TRISEbits.TRISF2
+
+#define LED3_HI_LAT LATCbits.LATC7
+#define LED3_NORMAL_LAT LATCbits.LATC6
+#define LED3_LO_LAT LATCbits.LATC5
+
+
+#define LED3_HI_TRIS TRISCbits.TRISC7
+#define LED3_NORMAL_TRIS TRISCbits.TRISC6
+#define LED3_LO_TRIS TRISCbits.TRISC5
 
 #define _XTAL_FREQ 20000000
 
@@ -212,11 +233,13 @@ void initVariables(void) {
 void main(void) {
     SYSTEM_Initialize();
 
-    LED_HI_TRIS = 0;
-    LED_NORMAL_TRIS = 0;
-    LED_LO_TRIS = 0;
     RELAY_TRIS = 0;
     RELAY_LAT = 0;
+    
+    LED1_HI_TRIS = 0;
+    LED1_NORMAL_TRIS = 0;
+    LED1_LO_TRIS = 0;
+
     INTERRUPT_GlobalInterruptEnable();
     initVariables();
     initADC();
@@ -672,9 +695,9 @@ void main(void) {
         //            LED_LAT_1 = 1;
         //        }
         if (statusByte1 & 0x04) {
-            LED_NORMAL_LAT = 1;
+            LED1_NORMAL_LAT = 1;
         } else {
-            LED_NORMAL_LAT = 0;
+            LED1_NORMAL_LAT = 0;
         }
         bool shouldOn = 0;
         if (statusByte1 & 0x01) {
@@ -683,9 +706,9 @@ void main(void) {
             }
         }
         if (shouldOn) {
-            LED_HI_LAT = 1;
+            LED1_HI_LAT = 1;
         } else {
-            LED_HI_LAT = 0;
+            LED1_HI_LAT = 0;
         }
         shouldOn = 0;
         if (statusByte1 & 0x02) {
@@ -694,9 +717,9 @@ void main(void) {
             }
         }
         if (shouldOn) {
-            LED_LO_LAT = 1;
+            LED1_LO_LAT = 1;
         } else {
-            LED_LO_LAT = 0;
+            LED1_LO_LAT = 0;
         }
         shouldOn = 0;
         if (outputLatch1) {
