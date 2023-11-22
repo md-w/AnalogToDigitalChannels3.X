@@ -99,6 +99,8 @@ unsigned char dispMainState = 0;
 unsigned char dispSubState = 0;
 unsigned char statusByte0 = 0;
 unsigned char statusByte1 = 0;
+unsigned char statusByte2 = 0;
+unsigned char statusByte3 = 0;
 unsigned char sec60Counter = 60;
 unsigned char ucPassword = PSWD + 5;
 
@@ -134,16 +136,16 @@ STRUCT_CONTROLLER_SP SetPoint;
 
 #define LED2_HI_TRIS TRISEbits.TRISE0
 #define LED2_NORMAL_TRIS TRISEbits.TRISE1
-#define LED2_LO_TRIS TRISEbits.TRISF2
+#define LED2_LO_TRIS TRISEbits.TRISE2
 
-#define LED3_HI_LAT LATCbits.LATC7
-#define LED3_NORMAL_LAT LATCbits.LATC6
-#define LED3_LO_LAT LATCbits.LATC5
+#define LED3_HI_LAT LATCbits.LATC0
+#define LED3_NORMAL_LAT LATAbits.LATA3
+#define LED3_LO_LAT LATAbits.LATA4
 
 
-#define LED3_HI_TRIS TRISCbits.TRISC7
-#define LED3_NORMAL_TRIS TRISCbits.TRISC6
-#define LED3_LO_TRIS TRISCbits.TRISC5
+#define LED3_HI_TRIS TRISCbits.TRISC0
+#define LED3_NORMAL_TRIS TRISAbits.TRISA3
+#define LED3_LO_TRIS TRISAbits.TRISA4
 
 #define _XTAL_FREQ 20000000
 
@@ -240,6 +242,14 @@ void main(void) {
     LED1_NORMAL_TRIS = 0;
     LED1_LO_TRIS = 0;
 
+    LED2_HI_TRIS = 0;
+    LED2_NORMAL_TRIS = 0;
+    LED2_LO_TRIS = 0;
+
+    LED3_HI_TRIS = 0;
+    LED3_NORMAL_TRIS = 0;
+    LED3_LO_TRIS = 0;
+
     INTERRUPT_GlobalInterruptEnable();
     initVariables();
     initADC();
@@ -260,6 +270,8 @@ void main(void) {
     while (1) {
         statusByte0 = 0x00;
         statusByte1 = 0x00;
+        statusByte2 = 0x00;
+        statusByte3 = 0x00;
         adcTask();
         if (tick1000mSec) {
             tick1000mSec = 0;
@@ -277,7 +289,11 @@ void main(void) {
 
         int iRoomTemp1 = (((long) iADCValCh1 + (long) SetPoint.cCCh1)*((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh1 * 10)) / (long) 10230;
         int iRoomTemp2 = (((long) iADCValCh2 + (long) SetPoint.cCCh2)*((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh2 * 10)) / (long) 10230;
-        int iRoomTemp3 = (((long) iADCValCh3 + (long) SetPoint.cCCh3)*((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh3 * 10)) / (long) 10230;
+//        int iRoomTemp3 = (((long) iADCValCh3 + (long) SetPoint.cCCh3)*((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh3 * 10)) / (long) 10230;
+        
+        int iRoomTemp3 = -(760*(long)iADCValCh3)/819 + 855;
+        
+        
 
         //        int iRoomTemp = -(760*(long)iADCValCh1)/819 + 855;
 
@@ -296,6 +312,35 @@ void main(void) {
         }
         outputLatch1Hist = outputLatch1;
 
+        if (iRoomTemp2 < SetPoint.ucLoSetPoint2) {
+            statusByte2 |= 0x02;
+            outputLatch2 = 1;
+        } else if (iRoomTemp2 > SetPoint.ucHiSetPoint2) {
+            statusByte2 |= 0x01;
+            outputLatch2 = 1;
+        } else {
+            statusByte2 |= 0x04;
+            outputLatch2 = 0;
+        }
+        if (!outputLatch2Hist && outputLatch2) {
+            isSound = 1;
+        }
+        outputLatch2Hist = outputLatch2;
+
+        if (iRoomTemp3 < SetPoint.ucLoSetPoint3) {
+            statusByte3 |= 0x02;
+            outputLatch3 = 1;
+        } else if (iRoomTemp3 > SetPoint.ucHiSetPoint3) {
+            statusByte3 |= 0x01;
+            outputLatch3 = 1;
+        } else {
+            statusByte3 |= 0x04;
+            outputLatch3 = 0;
+        }
+        if (!outputLatch3Hist && outputLatch3) {
+            isSound = 1;
+        }
+        outputLatch2Hist = outputLatch2;
 
         switch (dispMainState) {
             case 0:
@@ -689,47 +734,122 @@ void main(void) {
                 dispMainState = 0;
                 break;
         }
-        //        if (statusByte0 & 0x01) {
-        //            LED_LAT_1 = 0;
-        //        } else {
-        //            LED_LAT_1 = 1;
-        //        }
+        
+        bool should1On = 0;
+        bool should2On = 0;
+        bool should3On = 0;
+        
         if (statusByte1 & 0x04) {
             LED1_NORMAL_LAT = 1;
         } else {
             LED1_NORMAL_LAT = 0;
         }
-        bool shouldOn = 0;
+        
         if (statusByte1 & 0x01) {
             if (bToggleBitSlow) {
-                shouldOn = 1;
+                should1On = 1;
             }
         }
-        if (shouldOn) {
+        if (should1On) {
             LED1_HI_LAT = 1;
         } else {
             LED1_HI_LAT = 0;
         }
-        shouldOn = 0;
+        should1On = 0;
         if (statusByte1 & 0x02) {
             if (bToggleBitSlow) {
-                shouldOn = 1;
+                should1On = 1;
             }
         }
-        if (shouldOn) {
+        if (should1On) {
             LED1_LO_LAT = 1;
         } else {
             LED1_LO_LAT = 0;
         }
-        shouldOn = 0;
+        should1On = 0;
         if (outputLatch1) {
             if (isSound) {
                 if (bToggleBitSlow) {
-                    shouldOn = 1;
+                    should1On = 1;
                 }
             }
         }
-        if (shouldOn) {
+        
+
+        if (statusByte2 & 0x04) {
+            LED2_NORMAL_LAT = 1;
+        } else {
+            LED2_NORMAL_LAT = 0;
+        }
+        
+        if (statusByte2 & 0x01) {
+            if (bToggleBitSlow) {
+                should2On = 1;
+            }
+        }
+        if (should2On) {
+            LED2_HI_LAT = 1;
+        } else {
+            LED2_HI_LAT = 0;
+        }
+        should2On = 0;
+        if (statusByte2 & 0x02) {
+            if (bToggleBitSlow) {
+                should2On = 1;
+            }
+        }
+        if (should2On) {
+            LED2_LO_LAT = 1;
+        } else {
+            LED2_LO_LAT = 0;
+        }
+        should2On = 0;
+        if (outputLatch2) {
+            if (isSound) {
+                if (bToggleBitSlow) {
+                    should2On = 1;
+                }
+            }
+        }
+        
+        if (statusByte3 & 0x04) {
+            LED3_NORMAL_LAT = 1;
+        } else {
+            LED3_NORMAL_LAT = 0;
+        }
+        
+        if (statusByte3 & 0x01) {
+            if (bToggleBitSlow) {
+                should3On = 1;
+            }
+        }
+        if (should3On) {
+            LED3_HI_LAT = 1;
+        } else {
+            LED3_HI_LAT = 0;
+        }
+        should3On = 0;
+        if (statusByte3 & 0x02) {
+            if (bToggleBitSlow) {
+                should3On = 1;
+            }
+        }
+        if (should3On) {
+            LED3_LO_LAT = 1;
+        } else {
+            LED3_LO_LAT = 0;
+        }
+        should3On = 0;
+        if (outputLatch2) {
+            if (isSound) {
+                if (bToggleBitSlow) {
+                    should3On = 1;
+                }
+            }
+        }
+        
+        
+        if (should1On || should2On || should3On) {
             RELAY_LAT = 1;
         } else {
             RELAY_LAT = 0;
