@@ -470,10 +470,11 @@ void initADC(void) {
 #if defined(__18F4520)
     ADCON0 = 0b00000000;
     //ADCON1 = 0b00011011; 
-    ADCON1 = 0b00001101;
+    // ADCON1 = 0b00001101;
+    ADCON1 = 0b00001100;
     ADCON2 = 0b10110101;
     //76543210
-    TRISA |= 0b00001111;
+    TRISA |= 0b00000111;
     ADCON0bits.ADON = 1;
 #else
     /*

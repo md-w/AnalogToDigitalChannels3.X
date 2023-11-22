@@ -139,13 +139,13 @@ STRUCT_CONTROLLER_SP SetPoint;
 #define LED2_LO_TRIS TRISEbits.TRISE2
 
 #define LED3_HI_LAT LATCbits.LATC0
-#define LED3_NORMAL_LAT LATAbits.LATA3
-#define LED3_LO_LAT LATAbits.LATA4
+#define LED3_NORMAL_LAT LATAbits.LATA4
+#define LED3_LO_LAT LATAbits.LATA3
 
 
 #define LED3_HI_TRIS TRISCbits.TRISC0
-#define LED3_NORMAL_TRIS TRISAbits.TRISA3
-#define LED3_LO_TRIS TRISAbits.TRISA4
+#define LED3_NORMAL_TRIS TRISAbits.TRISA4
+#define LED3_LO_TRIS TRISAbits.TRISA3
 
 #define _XTAL_FREQ 20000000
 
@@ -340,7 +340,7 @@ void main(void) {
         if (!outputLatch3Hist && outputLatch3) {
             isSound = 1;
         }
-        outputLatch2Hist = outputLatch2;
+        outputLatch3Hist = outputLatch3;
 
         switch (dispMainState) {
             case 0:
