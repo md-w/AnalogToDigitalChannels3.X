@@ -77,16 +77,22 @@
 #define SET_POINT_HI_MAX  (ANALOG_FULLSCALE/10 - 1)
 #define SET_POINT_HI_MIN  (60)
 
+#define SET_POINT_HI_MAX3  (760 - 1)
+#define SET_POINT_HI_MIN3  (500)
+
 #define SET_POINT_LO_MAX  (50)
 #define SET_POINT_LO_MIN  (30)
 
+#define SET_POINT_LO_MAX3  SET_POINT_HI_MIN3
+#define SET_POINT_LO_MIN3  (100)
+
 typedef struct _structControllerSP {
-    unsigned char ucLoSetPoint1;
-    unsigned char ucHiSetPoint1;
-    unsigned char ucLoSetPoint2;
-    unsigned char ucHiSetPoint2;
-    unsigned char ucLoSetPoint3;
-    unsigned char ucHiSetPoint3;
+    unsigned int ucLoSetPoint1;
+    unsigned int ucHiSetPoint1;
+    unsigned int ucLoSetPoint2;
+    unsigned int ucHiSetPoint2;
+    unsigned int ucLoSetPoint3;
+    unsigned int ucHiSetPoint3;
     signed char cMCh1;
     signed char cCCh1;
     signed char cMCh2;
@@ -218,11 +224,11 @@ void initVariables(void) {
     if ((SetPoint.cCCh2 < -99) || (SetPoint.cCCh2 > 99)) {
         SetPoint.cCCh2 = 0;
     }
-    if ((SetPoint.ucHiSetPoint3 < SET_POINT_HI_MIN) || (SetPoint.ucHiSetPoint3 > SET_POINT_HI_MAX)) {
-        SetPoint.ucHiSetPoint3 = 100;
+    if ((SetPoint.ucHiSetPoint3 < SET_POINT_HI_MIN3) || (SetPoint.ucHiSetPoint3 > SET_POINT_HI_MAX3)) {
+        SetPoint.ucHiSetPoint3 = SET_POINT_HI_MAX3;
     }
-    if ((SetPoint.ucLoSetPoint3 < SET_POINT_LO_MIN) || (SetPoint.ucLoSetPoint3 > SET_POINT_LO_MAX)) {
-        SetPoint.ucLoSetPoint3 = SET_POINT_LO_MIN;
+    if ((SetPoint.ucLoSetPoint3 < SET_POINT_LO_MIN3) || (SetPoint.ucLoSetPoint3 > SET_POINT_LO_MAX3)) {
+        SetPoint.ucLoSetPoint3 = SET_POINT_LO_MIN3;
     }
     if ((SetPoint.cMCh3 < -99) || (SetPoint.cMCh3 > 99)) {
         SetPoint.cMCh3 = 0;
@@ -291,7 +297,7 @@ void main(void) {
         int iRoomTemp2 = (((long) iADCValCh2 + (long) SetPoint.cCCh2)*((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh2 * 10)) / (long) 10230;
         //        int iRoomTemp3 = (((long) iADCValCh3 + (long) SetPoint.cCCh3)*((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh3 * 10)) / (long) 10230;
 
-        int iRoomTemp3 = -((760 + (long) SetPoint.cMCh3)*(long) iADCValCh3) / 819 + 855 + (long) SetPoint.cCCh2;
+        int iRoomTemp3 = -((760 + (long) SetPoint.cMCh3)*(long) iADCValCh3) / 819 + 855 + (long) SetPoint.cCCh3;
 
 
 
@@ -385,7 +391,7 @@ void main(void) {
                 switch (dispSubState) {
                     case 0:
                         statusByte0 |= 0x04;
-                        checkAndInrDcrChar(&SetPoint.ucHiSetPoint1, SET_POINT_HI_MAX, SET_POINT_HI_MIN);
+                        checkAndInrDcrInt(&SetPoint.ucHiSetPoint1, SET_POINT_HI_MAX, SET_POINT_HI_MIN);
                         display1Int(SetPoint.ucHiSetPoint1, 0);
                         if ((keyDown & ENTKEY_MASK)) {
                             keyDown = 0x00;
@@ -395,7 +401,7 @@ void main(void) {
                         break;
                     case 1:
                         statusByte0 |= 0x08;
-                        checkAndInrDcrChar(&SetPoint.ucLoSetPoint1, SetPoint.ucHiSetPoint1, SET_POINT_LO_MIN);
+                        checkAndInrDcrInt(&SetPoint.ucLoSetPoint1, SetPoint.ucHiSetPoint1, SET_POINT_LO_MIN);
                         display1Int(SetPoint.ucLoSetPoint1, 0);
                         if ((keyDown & ENTKEY_MASK)) {
                             keyDown = 0x00;
@@ -509,7 +515,7 @@ void main(void) {
                 switch (dispSubState) {
                     case 0:
                         statusByte0 |= 0x04;
-                        checkAndInrDcrChar(&SetPoint.ucHiSetPoint2, SET_POINT_HI_MAX, SET_POINT_HI_MIN);
+                        checkAndInrDcrInt(&SetPoint.ucHiSetPoint2, SET_POINT_HI_MAX, SET_POINT_HI_MIN);
                         display2Int(SetPoint.ucHiSetPoint2, 0);
                         if ((keyDown & ENTKEY_MASK)) {
                             keyDown = 0x00;
@@ -519,7 +525,7 @@ void main(void) {
                         break;
                     case 1:
                         statusByte0 |= 0x08;
-                        checkAndInrDcrChar(&SetPoint.ucLoSetPoint2, SetPoint.ucHiSetPoint2, SET_POINT_LO_MIN);
+                        checkAndInrDcrInt(&SetPoint.ucLoSetPoint2, SetPoint.ucHiSetPoint2, SET_POINT_LO_MIN);
                         display2Int(SetPoint.ucLoSetPoint2, 0);
                         if ((keyDown & ENTKEY_MASK)) {
                             keyDown = 0x00;
@@ -633,7 +639,7 @@ void main(void) {
                 switch (dispSubState) {
                     case 0:
                         statusByte0 |= 0x04;
-                        checkAndInrDcrChar(&SetPoint.ucHiSetPoint3, SET_POINT_HI_MAX, SET_POINT_HI_MIN);
+                        checkAndInrDcrInt(&SetPoint.ucHiSetPoint3, SET_POINT_HI_MAX3, SET_POINT_HI_MIN3);
                         display3Int(SetPoint.ucHiSetPoint3, 0);
                         if ((keyDown & ENTKEY_MASK)) {
                             keyDown = 0x00;
@@ -643,7 +649,7 @@ void main(void) {
                         break;
                     case 1:
                         statusByte0 |= 0x08;
-                        checkAndInrDcrChar(&SetPoint.ucLoSetPoint3, SetPoint.ucHiSetPoint3, SET_POINT_LO_MIN);
+                        checkAndInrDcrInt(&SetPoint.ucLoSetPoint3, SetPoint.ucHiSetPoint3, SET_POINT_LO_MIN3);
                         display3Int(SetPoint.ucLoSetPoint3, 0);
                         if ((keyDown & ENTKEY_MASK)) {
                             keyDown = 0x00;
