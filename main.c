@@ -1,6 +1,8 @@
 
 // refer file:///C:/Program%20Files/Microchip/xc8/v2.40/docs/chips/18f4520.html
 
+#define MODE_3CH    0
+
 // CONFIG1H
 #pragma config OSC = HS         // Oscillator Selection bits (HS oscillator)
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
@@ -126,14 +128,14 @@ STRUCT_CONTROLLER_SP SetPoint;
 #define RELAY_TRIS TRISAbits.TRISA5
 
 
-#define LED1_HI_LAT LATCbits.LATC7
+#define LED1_HI_LAT LATCbits.LATC5
 #define LED1_NORMAL_LAT LATCbits.LATC6
-#define LED1_LO_LAT LATCbits.LATC5
+#define LED1_LO_LAT LATCbits.LATC7
 
 
-#define LED1_HI_TRIS TRISCbits.TRISC7
+#define LED1_HI_TRIS TRISCbits.TRISC5
 #define LED1_NORMAL_TRIS TRISCbits.TRISC6
-#define LED1_LO_TRIS TRISCbits.TRISC5
+#define LED1_LO_TRIS TRISCbits.TRISC7
 
 #define LED2_HI_LAT LATEbits.LATE0
 #define LED2_NORMAL_LAT LATEbits.LATE1
