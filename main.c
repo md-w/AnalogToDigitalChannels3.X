@@ -1,8 +1,6 @@
 
 // refer file:///C:/Program%20Files/Microchip/xc8/v2.40/docs/chips/18f4520.html
 
-#define MODE_3CH    0
-
 // CONFIG1H
 #pragma config OSC = HS         // Oscillator Selection bits (HS oscillator)
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
@@ -299,16 +297,19 @@ void main(void) {
         int iRoomTemp2 = (((long) iADCValCh2 + (long) SetPoint.cCCh2)*((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh2 * 10)) / (long) 10230;
         //        int iRoomTemp3 = (((long) iADCValCh3 + (long) SetPoint.cCCh3)*((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh3 * 10)) / (long) 10230;
 
-        int iRoomTemp3 = -((760 + (long) SetPoint.cMCh3)*(long) iADCValCh3) / 819 + 855 + (long) SetPoint.cCCh3;
+        //int iRoomTemp3 = -((760 + (long) SetPoint.cMCh3)*(long) iADCValCh3) / 819 + 855 + (long) SetPoint.cCCh3;
 
+        int iRoomTemp3 = -760 * (10 * (long)iADCValCh3 * (127 + (long)SetPoint.cMCh3) + (long)SetPoint.cCCh3 * 127 - 921 * 10 * 127) / (8190 * 127);
 
 
         //        int iRoomTemp = -(760*(long)iADCValCh1)/819 + 855;
-
-        if (iRoomTemp1 < SetPoint.ucLoSetPoint1) {
+        if (iRoomTemp1 < 0) {   // NORMAL (Exceptional case to indicate that channel is disabled)
+            statusByte1 |= 0x04;
+            outputLatch1 = 0;            
+        } else if (iRoomTemp1 < (int)SetPoint.ucLoSetPoint1) {
             statusByte1 |= 0x02;
             outputLatch1 = 1;
-        } else if (iRoomTemp1 > SetPoint.ucHiSetPoint1) {
+        } else if (iRoomTemp1 > (int)SetPoint.ucHiSetPoint1) {
             statusByte1 |= 0x01;
             outputLatch1 = 1;
         } else {
@@ -320,10 +321,13 @@ void main(void) {
         }
         outputLatch1Hist = outputLatch1;
 
-        if (iRoomTemp2 < SetPoint.ucLoSetPoint2) {
+        if (iRoomTemp2 < 0) {   // NORMAL (Exceptional case to indicate that channel is disabled)
+            statusByte2 |= 0x04;
+            outputLatch2 = 0;           
+        } else if (iRoomTemp2 < (int)SetPoint.ucLoSetPoint2) {
             statusByte2 |= 0x02;
             outputLatch2 = 1;
-        } else if (iRoomTemp2 > SetPoint.ucHiSetPoint2) {
+        } else if (iRoomTemp2 > (int)SetPoint.ucHiSetPoint2) {
             statusByte2 |= 0x01;
             outputLatch2 = 1;
         } else {
@@ -335,10 +339,10 @@ void main(void) {
         }
         outputLatch2Hist = outputLatch2;
 
-        if (iRoomTemp3 < SetPoint.ucLoSetPoint3) {
+        if (iRoomTemp3 < (int)SetPoint.ucLoSetPoint3) {
             statusByte3 |= 0x02;
             outputLatch3 = 1;
-        } else if (iRoomTemp3 > SetPoint.ucHiSetPoint3) {
+        } else if (iRoomTemp3 > (int)SetPoint.ucHiSetPoint3) {
             statusByte3 |= 0x01;
             outputLatch3 = 1;
         } else {

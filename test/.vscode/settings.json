@@ -1,0 +1,12 @@
+{
+  "cmake.configureOnOpen": false,
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+  "cmake.configureSettings": {
+    "VCPKG_OVERLAY_TRIPLETS": "${workspaceFolder}",
+    "VCPKG_TARGET_TRIPLET": "x64-mixed",
+    "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/../../../thirdparty/vcpkg/scripts/buildsystems/vcpkg.cmake",
+  },
+  "cmake.options.statusBarVisibility": "visible",
+}
