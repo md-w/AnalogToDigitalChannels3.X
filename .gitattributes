@@ -1,0 +1,11 @@
+# Let git auto-detect text vs binary; core.autocrlf handles per-platform EOLs.
+* text=auto
+
+# Force binary for these formats so they're never line-ending-normalized.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.hex binary
+*.elf binary
+*.o binary
