@@ -1,8 +1,6 @@
 
 // refer file:///C:/Program%20Files/Microchip/xc8/v2.40/docs/chips/18f4520.html
 
-#define MODE_3CH    0
-
 // CONFIG1H
 #pragma config OSC = HS         // Oscillator Selection bits (HS oscillator)
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
@@ -315,7 +313,7 @@ void main(void) {
         int iRoomTemp1 = (((long) iADCValCh1 + (long) SetPoint.cCCh1) * ((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh1 * 10)) / (long) 10230;
         int iRoomTemp2 = (((long) iADCValCh2 + (long) SetPoint.cCCh2) * ((long) ANALOG_FULLSCALE + (long) SetPoint.cMCh2 * 10)) / (long) 10230;
         // channel 3 inverted: higher ADC -> lower reading
-        int iRoomTemp3 = -((760 + (long) SetPoint.cMCh3) * (long) iADCValCh3) / 819 + 855 + (long) SetPoint.cCCh3;
+        int iRoomTemp3 = -760 * (10 * (long) iADCValCh3 * (127 + (long) SetPoint.cMCh3) + (long) SetPoint.cCCh3 * 127 - 921 * 10 * 127) / (8190 * 127);
 
         evalAlarm(iRoomTemp1, SetPoint.ucLoSetPoint1, SetPoint.ucHiSetPoint1,
                 &outputLatch1, &outputLatch1Hist, &statusByte1);
